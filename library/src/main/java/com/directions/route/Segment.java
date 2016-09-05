@@ -20,6 +20,12 @@ public class Segment {
      * Distance covered. *
      */
     private double distance;
+    /**
+     * Duration. *
+     */
+    private double duration;
+
+    private Boolean isWaypoint;
     
     /* Maneuver instructions */
     private String maneuver;
@@ -85,6 +91,8 @@ public class Segment {
         copy.instruction = instruction;
         copy.length = length;
         copy.distance = distance;
+        copy.duration = duration;
+        copy.isWaypoint = isWaypoint;
         copy.maneuver = maneuver;
         return copy;
     }
@@ -115,6 +123,28 @@ public class Segment {
      */
     public double getDistance() {
         return distance;
+    }
+
+    /**
+     * @param duration the duration to set
+     */
+    public void setDuration(double duration) {
+        this.duration = duration;
+    }
+
+    /**
+     * @return the duration
+     */
+    public double getDuration() {
+        return duration;
+    }
+
+    public Boolean getIsWaypoint() {
+        return isWaypoint;
+    }
+
+    public void setIsWaypoint(Boolean isWaypoint) {
+        this.isWaypoint = isWaypoint;
     }
 
     public void setManeuver(String man) {

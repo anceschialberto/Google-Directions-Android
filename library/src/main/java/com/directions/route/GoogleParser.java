@@ -19,10 +19,16 @@ public class GoogleParser extends XMLParser implements Parser {
 
     private static final String VALUE = "value";
     private static final String DISTANCE = "distance";
+    private static final String DURATION = "duration";
     /**
      * Distance covered. *
      */
     private int distance;
+
+    /**
+     * Duration of the route
+     */
+    private int duration;
 
     /* Status code returned when the request succeeded */
     private static final String OK = "OK";
@@ -93,6 +99,17 @@ public class GoogleParser extends XMLParser implements Parser {
                     route.setWarning(jsonRoute.getJSONArray("warnings").getString(0));
                 }
 
+                ArrayList<Integer> waypointStepIdxList = new ArrayList<>();
+
+                //Get the waypoints passed by this route
+                final JSONArray waypoints = leg.getJSONArray("via_waypoints");
+                for (int k = 0; k < waypoints.length(); k++) {
+                    final JSONObject waypoint = waypoints.getJSONObject(k);
+                    int stepIdx = waypoint.getInt("step_index");
+                    waypointStepIdxList.add(stepIdx);
+                }
+
+
                 /* Loop through the steps, creating a segment for each one and
                  * decoding any polylines found as we go to add to the route object's
                  * map array. Using an explicit for loop because it is faster!
@@ -107,11 +124,20 @@ public class GoogleParser extends XMLParser implements Parser {
                     segment.setPoint(position);
                     //Set the length of this segment in metres
                     final int length = step.getJSONObject(DISTANCE).getInt(VALUE);
+                    final int secondsLength = step.getJSONObject(DURATION).getInt(VALUE);
                     distance += length;
+                    duration += secondsLength;
                     segment.setLength(length);
                     segment.setDistance((double)distance / (double)1000);
+                    segment.setDuration((double)duration);
                     //Strip html from google directions and set as turn instruction
                     segment.setInstruction(step.getString("html_instructions").replaceAll("<(.*?)*>", ""));
+
+                    if(waypointStepIdxList.contains(y+1)) {
+                        segment.setIsWaypoint(true);
+                    } else {
+                        segment.setIsWaypoint(false);
+                    }
                     
                     if(step.has("maneuver"))
                         segment.setManeuver(step.getString("maneuver"));
